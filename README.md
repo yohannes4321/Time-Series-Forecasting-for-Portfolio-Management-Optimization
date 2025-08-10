@@ -76,31 +76,16 @@ Windows:
 python -m venv venv
 venv\Scripts\activate
 ```
-macOS/Linux:
 
+macOS/Linux:
+```bash
 python3 -m venv venv
 source venv/bin/activate
-
+```
 Install required packages:
-
+```bash
 pip install -r requirements.txt
-
-Visualization Outputs
-
-Plots and images generated during the analysis are stored in the plot folder:
-
-    output.png
-
-    output1.png
-
-    output2.png
-
-    output3.png
-
-    output4.png
-
-    output5.png
-
-Example markdown to display an image (for README or reports):
+```
 
 
+### Data Scientist Yohannes Alemu
