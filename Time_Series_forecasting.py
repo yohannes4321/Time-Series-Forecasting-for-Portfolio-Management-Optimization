@@ -5,8 +5,8 @@ import warnings
 warnings.filterwarnings('ignore')
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential
-from keras.layers import LSTM,Dense,Input
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM,Input,Dense
 
 stock_colors = {
         'TSLA': {'train': 'blue', 'test': 'darkblue', 'forecast': 'lightblue'},
