@@ -14,42 +14,56 @@ stock_colors = {
         'SPY': {'train': 'red', 'test': 'darkred', 'forecast': 'lightcoral'}
     }    
 def LSTM():
-    data = pd.read_csv('data/scaled_closing_price.csv', index_col=0)
-    scaler = MinMaxScaler(feature_range=(0,1))
 
-    scaled_price=scaler.fit_transform(data)
-    x,y=[],[]
-    time_steps=60
-    
-    for i in range(len(scaled_price)-time_steps):
-        x.append(scaled_price[i:i+time_steps,0])
-        y.append(scaled_price[i+time_steps,0])
 
-    x=x.shape(x.shape[0],x.shape[1],1)
-    train_size=int(len(x)*0.9)
-    x_train,x_test=x[:train_size],x[train_size:]
-    y_train,y_test=y[:train_size],y[train_size:]
-    model=Sequential()
-    model.add(Input(shape=(time_steps,1)))
-    model.add(LSTM(50,return_sequences=False))
-    model.add(Dense(1))
-    model.compile(optimizer='adam',loss='mean_squared_error')
+    data = pd.read_csv('Time-Series-Forecasting-for-Portfolio-Management-Optimization/data/scaled_closing_price.csv', index_col=0)
+    print("Successfully loaded scaled_closing_price.csv")
+
     assets = ['TSLA', 'BND', 'SPY']
-    for col in assets:
-        history=model.fit(x_train[col],y_train[col],epochs=100,batch_size=32,validation_data=(x_test[col],y_test[col]))
-        y_pred=history.predict(x_test[col])
-        y_pred_rescaled=scaler.inverse_transform(y_pred)
-        y_test_rescaled=scaler.inverse_transform(y_test)
+    # Define stock_colors dictionary
 
-    #plot
-        # Fit the ARIMA model for each stock
-        
-        # Plot the data for the current stock with its specific colors
-        plt.plot(x_train.index, y_train, label=f'{col} Train', color=stock_colors[col]['train'])
-        plt.plot(x_test.index, y_test_rescaled, label=f'{col} Test', color=stock_colors[col]['test'])
-        plt.plot(x_test.index, y_pred_rescaled, label=f'{col} Forecast', color=stock_colors[col]['forecast'], linestyle='--')
-    
-    plt.title("Forecast for the Three Stocks using ARIMA")
+
+    for col in assets:
+        # Fit a new scaler for each stock
+        scaler = MinMaxScaler(feature_range=(0,1))
+        scaled_price = scaler.fit_transform(data[col].values.reshape(-1, 1))
+
+        x,y=[],[]
+        time_steps=60
+
+        for i in range(len(scaled_price)-time_steps):
+            x.append(scaled_price[i:i+time_steps,0])
+            y.append(scaled_price[i+time_steps,0])
+
+        x = np.array(x).reshape(np.array(x).shape[0],np.array(x).shape[1],1)
+        train_size=int(len(x)*0.9)
+        x_train,x_test=x[:train_size],x[train_size:]
+        y_train,y_test=y[:train_size],y[train_size:]
+
+        # Create and compile the model inside the loop for each stock
+        model=Sequential()
+        model.add(Input(shape=(time_steps,1)))
+        model.add(LSTM(50,return_sequences=False))
+        model.add(Dense(1))
+        model.compile(optimizer='adam',loss='mean_squared_error')
+
+        history=model.fit(x_train,np.array(y_train),epochs=20,batch_size=32,validation_data=(x_test,np.array(y_test).reshape(-1, 1)))
+        y_pred=model.predict(x_test)
+
+        # Inverse transform using the scaler fitted on the current stock's data
+        y_pred_rescaled=scaler.inverse_transform(y_pred)
+
+        # Reshape y_test for inverse_transform
+        y_test_reshaped = np.array(y_test).reshape(-1, 1)
+        y_test_rescaled=scaler.inverse_transform(y_test_reshaped)
+
+        #plot
+        plt.plot(np.arange(len(x_train)), scaler.inverse_transform(np.array(y_train).reshape(-1, 1)), label=f'{col} Train', color=stock_colors[col]['train'])
+        plt.plot(np.arange(len(x_train), len(x_train) + len(x_test)), y_test_rescaled, label=f'{col} Test', color=stock_colors[col]['test'])
+        plt.plot(np.arange(len(x_train), len(x_train) + len(x_test)), y_pred_rescaled, label=f'{col} Forecast', color=stock_colors[col]['forecast'], linestyle='--')
+
+
+    plt.title("Forecast for the Three Stocks using LSTM")
     plt.xlabel("Date")
     plt.ylabel("Close Price")
     plt.legend()
