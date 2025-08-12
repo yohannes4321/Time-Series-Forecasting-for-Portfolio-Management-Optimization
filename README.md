@@ -7,6 +7,8 @@
 | SPY    | 18.2%                 | 14.5%             | 0.79         |
 | TSLA   | 59.2%                 | 46.1%             | 0.78         |
 | BND    | 5.5%                  | 2.0%              | 0.36         |
+
+
 ![Stationarity Test Summary](plot/download.png)
 ![Stationarity Test Summary](plot/output.png)
 ![Stationarity Test Summary](plot/output1.png)
